@@ -8,9 +8,8 @@ import * as deepgramService from './deepgramService';
 // --- CONFIGURATION ---
 const MODELS = {
     SCRIPT: {
-        PRIMARY: 'llama-3.3-70b-versatile', // Groq: Smartest
-        FALLBACK_1: 'gemini-2.0-flash-exp', // Gemini: Reliable & Large Context
-        FALLBACK_2: 'llama-3.1-8b-instant'  // Groq: Fast & Cheap
+        PRIMARY: 'llama-3.3-70b-versatile', // Groq: Smartest (Expert/Creative)
+        FALLBACK: 'llama-3.1-8b-instant'    // Groq: Fast (Host/Concise)
     }
 };
 
@@ -64,73 +63,54 @@ const parseAIResponse = (text) => {
 export const aiService = {
     /**
      * Generate podcast script from prompt using AI models
-     * Falls back from Groq → Gemini → Groq 8B if any fails
+     * Uses Groq Llama 3.3 70B (Primary) -> Llama 3.1 8B (Fallback)
      */
     generateScript: async (systemPrompt, keys) => {
         let script = null;
         let usedModel = '';
 
-        // 1. TRY GROQ (PRIMARY)
-        if (keys.groq) {
-            try {
-                console.log(`[AI] Trying Primary: ${MODELS.SCRIPT.PRIMARY}`);
-                const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${keys.groq}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        messages: [{ role: "system", content: systemPrompt + " RESPOND IN RAW JSON ONLY." }],
-                        model: MODELS.SCRIPT.PRIMARY,
-                        response_format: { type: "json_object" }
-                    })
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    script = parseAIResponse(data.choices[0].message.content);
-                    usedModel = MODELS.SCRIPT.PRIMARY;
-                }
-            } catch (e) { console.warn("[AI] Primary Failed:", e); }
-        }
+        if (!keys.groq) throw new Error("Groq API Key is Missing.");
 
-        // 2. TRY GEMINI (FALLBACK 1)
-        if (!script && keys.gemini) {
-            try {
-                console.log(`[AI] Engaging Fallback: ${MODELS.SCRIPT.FALLBACK_1}`);
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELS.SCRIPT.FALLBACK_1}:generateContent?key=${keys.gemini}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: systemPrompt + " Respond with valid JSON array only. Do not use Markdown." }] }]
-                    })
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    script = parseAIResponse(data.candidates[0].content.parts[0].text);
-                    usedModel = MODELS.SCRIPT.FALLBACK_1;
-                }
-            } catch (e) { console.warn("[AI] Fallback 1 Failed:", e); }
-        }
+        // 1. TRY GROQ PRIMARY (Llama 70b)
+        try {
+            console.log(`[AI] Trying Primary: ${MODELS.SCRIPT.PRIMARY}`);
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${keys.groq}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    messages: [{ role: "system", content: systemPrompt + " RESPOND IN RAW JSON ONLY." }],
+                    model: MODELS.SCRIPT.PRIMARY,
+                    response_format: { type: "json_object" }
+                })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                script = parseAIResponse(data.choices[0].message.content);
+                usedModel = MODELS.SCRIPT.PRIMARY;
+            }
+        } catch (e) { console.warn("[AI] Primary Failed:", e); }
 
-        // 3. TRY GROQ 8B (FALLBACK 2)
-        if (!script && keys.groq) {
+        // 2. TRY GROQ FALLBACK (Llama 8b)
+        if (!script) {
             try {
-                console.log(`[AI] Engaging Safety Net: ${MODELS.SCRIPT.FALLBACK_2}`);
+                console.log(`[AI] Engaging Fallback: ${MODELS.SCRIPT.FALLBACK}`);
                 const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${keys.groq}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         messages: [{ role: "system", content: systemPrompt }],
-                        model: MODELS.SCRIPT.FALLBACK_2
+                        model: MODELS.SCRIPT.FALLBACK
                     })
                 });
                 if (res.ok) {
                     const data = await res.json();
                     script = parseAIResponse(data.choices[0].message.content);
-                    usedModel = MODELS.SCRIPT.FALLBACK_2;
+                    usedModel = MODELS.SCRIPT.FALLBACK;
                 }
-            } catch (e) { console.warn("[AI] Safety Net Failed:", e); }
+            } catch (e) { console.warn("[AI] Fallback Failed:", e); }
         }
 
-        if (!script) throw new Error("All Intelligence Layers Failed.");
+        if (!script) throw new Error("All AI Models Failed. Please check your Groq API Key.");
         return script;
     },
 

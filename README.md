@@ -4,21 +4,21 @@ A modern web application that generates, plays, and visualizes AI-powered podcas
 
 ## Features
 
-- **AI Script Generation** - Create podcast scripts using Groq or Google Gemini
-- **Text-to-Speech Audio** - Generate natural-sounding audio with Deepgram TTS
+- **AI Script Generation** - Powered by Groq (Llama 3.3 70B & Llama 3.1 8B)
+- **Text-to-Speech Audio** - High-quality audio via Deepgram TTS
 - **Real-Time Visualization** - 3D particle effects and audio-reactive visuals
 - **Multiple AI Personas** - 6 unique voice personas with distinct characteristics
 - **History Management** - Save and replay previously generated episodes
 - **Customizable Themes** - Cool, Warm, and Neon aesthetic options
 - **Local Storage** - Persist your API keys and episode history
-- **Fallback Chain** - Graceful degradation when primary services are unavailable
+- **Robust Fallback** - Automatic switching between Llama models for reliability
 
 ## Tech Stack
 
 - **Frontend**: React 18.x with Vite
 - **Styling**: Tailwind CSS
 - **Visualization**: Three.js-compatible 3D rendering
-- **APIs**: Groq, Google Gemini, Deepgram, ElevenLabs
+- **APIs**: Groq (Intelligence), Deepgram (Audio)
 - **Build Tool**: Vite 7.3.0
 
 ## Project Structure
@@ -30,18 +30,17 @@ src/
 ├── main.jsx                         # Application entry point
 ├── components/
 │   ├── EchoCastTerminal.jsx        # Main orchestrator component
-│   ├── AudioVisualizer.jsx         # Audio player and controls
-│   ├── CanvasVisualization.jsx     # 3D particle effects visualization
+│   ├── StudioView.jsx              # Creation studio & live broadcast UI
 │   ├── AudioReactor.jsx            # Speaker indicator component
 │   ├── SettingsModal.jsx           # Settings dialog
 │   ├── HistoryPanel.jsx            # Episode history sidebar
-│   ├── EchoPlayer.jsx              # Audio playback wrapper
+│   ├── TerminalVisualizer.jsx      # Audio visualization component
 │   └── Starfield.jsx               # Background starfield effect
 ├── config/
 │   ├── personas.js                 # AI persona definitions
 │   └── themes.js                   # Theme color schemes
 └── utils/
-    ├── aiService.js                # Script generation service
+    ├── aiService.js                # Groq-based script generation
     ├── deepgramService.js          # Audio generation service
     └── icons.jsx                   # SVG icon components
 ```
@@ -51,7 +50,8 @@ src/
 ### Prerequisites
 
 - Node.js 18+ and npm
-- API keys for the services you plan to use (see below)
+- **Groq API Key**: [Get it here](https://console.groq.com)
+- **Deepgram API Key** (Optional): [Get it here](https://console.deepgram.com)
 
 ### Installation
 
@@ -70,11 +70,9 @@ src/
    ```bash
    cp .env.example .env
    ```
-   Then edit `.env` and add your actual API keys:
-   - [Groq API](https://console.groq.com) - For script generation
-   - [Google Gemini API](https://aistudio.google.com) - For fallback script generation
-   - [Deepgram API](https://console.deepgram.com) - For text-to-speech
-   - [ElevenLabs API](https://elevenlabs.io) - For alternative TTS
+   Edit `.env` and add your keys:
+   - `VITE_GROQ_API_KEY`: Required for script generation.
+   - `VITE_DEEPGRAM_API_KEY`: Required for AI voices (optional, defaults to system TTS if missing).
 
 4. **Start development server**
    ```bash
@@ -89,28 +87,22 @@ src/
 - `npm run dev` - Start Vite development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
-- `npm run lint` - Run ESLint (if configured)
 
 ### Component Architecture
 
 The application follows a modular component structure:
 
 - **EchoCastTerminal.jsx**: Orchestrates all functionality, manages application state
-- **AudioVisualizer.jsx**: Handles audio player UI, playback controls, and progress tracking
-- **CanvasVisualization.jsx**: Renders real-time 3D particle effects synced to audio
+- **StudioView.jsx**: Handles script generation, duration control, and live broadcast view
 - **AudioReactor.jsx**: Displays speaking/idle state indicator
 - **SettingsModal.jsx**: Manages configuration UI for API keys and theme selection
-- **HistoryPanel.jsx**: Browse and replay previously generated episodes
-- **EchoPlayer.jsx**: Wraps the audio element with playback state management
 
 ### API Services
 
 #### `aiService.js`
-Handles script generation with fallback logic:
-1. Attempts Groq API first (faster, cheaper)
-2. Falls back to Google Gemini if Groq fails
-3. Falls back to browser speech synthesis if both fail
-4. Delegates audio generation to `deepgramService`
+Handles script generation using Groq's high-performance models:
+1. **Primary**: `llama-3.3-70b-versatile` (Expert reasoning & creativity)
+2. **Fallback**: `llama-3.1-8b-instant` (Speed & reliability)
 
 #### `deepgramService.js`
 Primary audio generation service:
