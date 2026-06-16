@@ -17,32 +17,36 @@ A modern web application that generates, plays, and visualizes AI-powered podcas
 
 - **Frontend**: React 18.x with Vite
 - **Styling**: Tailwind CSS
-- **Visualization**: Three.js-compatible 3D rendering
+- **Visualization**: HTML5 Canvas Rendering
 - **APIs**: Groq (Intelligence), Deepgram (Audio)
 - **Build Tool**: Vite 7.3.0
 
 ## Project Structure
 
-```
+```text
 src/
 ├── App.jsx                          # Root component with error boundary
 ├── App.css                          # Global styles
 ├── main.jsx                         # Application entry point
 ├── components/
-│   ├── EchoCastTerminal.jsx        # Main orchestrator component
-│   ├── StudioView.jsx              # Creation studio & live broadcast UI
-│   ├── AudioReactor.jsx            # Speaker indicator component
-│   ├── SettingsModal.jsx           # Settings dialog
-│   ├── HistoryPanel.jsx            # Episode history sidebar
-│   ├── TerminalVisualizer.jsx      # Audio visualization component
-│   └── Starfield.jsx               # Background starfield effect
+│   ├── common/
+│   │   └── Icons.jsx               # Reusable SVG icon library
+│   ├── layout/
+│   │   ├── EchoCastTerminal.jsx    # Main orchestrator component
+│   │   └── SettingsModal.jsx       # Global settings & auth dialog
+│   ├── library/
+│   │   └── Library.jsx             # Historical archive viewer
+│   └── studio/
+│       ├── AudioReactor.jsx        # Speaker indicator component
+│       ├── CoverArt.jsx            # Algorithmic cover art generator
+│       ├── StudioView.jsx          # Creation studio & live broadcast UI
+│       └── TerminalVisualizer.jsx  # Interactive background visualizations
 ├── config/
 │   ├── personas.js                 # AI persona definitions
 │   └── themes.js                   # Theme color schemes
-└── utils/
-    ├── aiService.js                # Groq-based script generation
-    ├── deepgramService.js          # Audio generation service
-    └── icons.jsx                   # SVG icon components
+└── services/
+    ├── aiService.js                # Groq LLM script generation wrapper
+    └── deepgramService.js          # Deepgram TTS orchestration
 ```
 
 ## Getting Started
@@ -90,26 +94,25 @@ src/
 
 ### Component Architecture
 
-The application follows a modular component structure:
+The application follows a modular, domain-driven architecture:
 
-- **EchoCastTerminal.jsx**: Orchestrates all functionality, manages application state
-- **StudioView.jsx**: Handles script generation, duration control, and live broadcast view
-- **AudioReactor.jsx**: Displays speaking/idle state indicator
-- **SettingsModal.jsx**: Manages configuration UI for API keys and theme selection
+- **Layout (`components/layout/`)**: Orchestrates global functionality, authentication, and the core routing shell (`EchoCastTerminal`).
+- **Studio (`components/studio/`)**: The main creative engine. Handles script generation, timeline logic, and the live broadcast view containing dynamic visualizers and audio reactors.
+- **Library (`components/library/`)**: Manages and displays previously archived episode transcripts and generation history.
+- **Common (`components/common/`)**: Reusable UI primitives like our centralized SVG `Icons` component.
 
 ### API Services
 
-#### `aiService.js`
+#### `services/aiService.js`
 Handles script generation using Groq's high-performance models:
 1. **Primary**: `llama-3.3-70b-versatile` (Expert reasoning & creativity)
 2. **Fallback**: `llama-3.1-8b-instant` (Speed & reliability)
 
-#### `deepgramService.js`
+#### `services/deepgramService.js`
 Primary audio generation service:
 - Converts scripts to speech using Deepgram TTS API
 - Supports 6 voice personas with custom voice mapping
 - Handles base64 encoding/decoding for audio data
-- Provides voice selection for each persona
 
 ### Configuration
 
@@ -178,29 +181,18 @@ This creates an optimized build in the `dist/` directory ready for deployment.
 - Verify internet connection is stable
 
 ### Visualization not rendering
-- Ensure your browser supports WebGL
 - Try a different browser (Chrome, Firefox)
 - Disable browser extensions that might interfere with rendering
 
 ## Performance Optimization
 
-- Visualization is rendered only when needed (LazyLoad pattern)
-- Audio caching prevents re-generating the same script+voice combination
+- Visualization is rendered only when needed
 - localStorage persists data locally, reducing API calls
 - Vite optimizes code splitting for faster initial load
 
-## Future Enhancements
-
-- [ ] Multi-language support
-- [ ] Advanced audio effects (echo, reverb, compression)
-- [ ] Podcast scheduling and automation
-- [ ] Social sharing and episode distribution
-- [ ] Backend API for credential management
-- [ ] Analytics and engagement tracking
-
 ## License
 
-[Add your license here]
+MIT License
 
 ## Contributing
 
@@ -211,15 +203,7 @@ Contributions are welcome! Please:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## Support
-
-For issues, feature requests, or questions:
-- Open an issue on GitHub
-- Check existing issues for solutions
-- Review the troubleshooting section above
-
 ---
 
 **Version**: 1.0.0  
-**Last Updated**: 2024  
 **Status**: Production Ready

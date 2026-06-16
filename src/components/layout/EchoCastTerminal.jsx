@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import StudioView from './StudioView';
-import Library from './Library';
+import StudioView from '../studio/StudioView';
+import Library from '../library/Library';
 import { SettingsModal } from './SettingsModal';
-import { Radio, Mic, LayoutGrid, Settings } from '../utils/icons';
+import { Radio, Mic, LayoutGrid, Settings } from '../common/Icons';
 
 // --- MAIN APP SHELL ---
 export default function EchoCastTerminal() {

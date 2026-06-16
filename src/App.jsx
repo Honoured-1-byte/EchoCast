@@ -1,5 +1,5 @@
 import React from 'react';
-import EchoCastTerminal from './components/EchoCastTerminal';
+import EchoCastTerminal from './components/layout/EchoCastTerminal';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

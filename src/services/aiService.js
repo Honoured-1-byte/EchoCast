@@ -1,5 +1,5 @@
 /**
- * AI Service - Script generation using Groq and Gemini APIs
+ * AI Service - Script generation using Groq APIs
  * Delegates audio generation to deepgramService
  */
 

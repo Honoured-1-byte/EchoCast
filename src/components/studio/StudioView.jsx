@@ -1,32 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { aiService } from '../utils/aiService';
+import { aiService } from '../../services/aiService';
 import TerminalVisualizer from './TerminalVisualizer';
 import CoverArt from './CoverArt';
-import { ARCHETYPES } from '../config/personas';
-import { THEMES } from '../config/themes';
-import { Play, Pause, Power, Activity, History, Settings, Brain, Zap, Mic, Feather, Cpu, Hourglass, Maximize, Minimize, SkipBack, SkipForward } from '../utils/icons.jsx';
-// import { HistoryPanel } from './HistoryPanel';
-
-// --- COMPONENTS ---
-const AudioReactor = ({ isSpeaking, color, iconName }) => {
-    const IconComponent = { Brain, Zap, Mic, Feather, Cpu, Hourglass }[iconName] || Activity;
-    return (
-        <div className="relative w-24 h-24 md:w-40 md:h-40 flex items-center justify-center transition-all duration-500">
-            <div className={`absolute inset-0 rounded-full opacity-20 blur-xl transition-all duration-300 ${isSpeaking ? 'scale-125 opacity-40' : 'scale-100'}`} style={{ backgroundColor: color }}></div>
-            <div className={`absolute inset-0 rounded-full border border-dashed opacity-30 ${isSpeaking ? 'animate-[spin_4s_linear_infinite]' : 'animate-[spin_10s_linear_infinite]'}`} style={{ borderColor: color }}></div>
-            {isSpeaking && (
-                <div className="absolute inset-[-10px] flex items-center justify-center">
-                    {[...Array(12)].map((_, i) => (
-                        <div key={i} className="absolute w-1 bg-current rounded-full origin-bottom animate-pulse" style={{ height: `${Math.random() * 30 + 10}px`, transform: `rotate(${i * 30}deg) translateY(-50px)`, color: color, animationDuration: `${Math.random() * 0.5 + 0.2}s` }} />
-                    ))}
-                </div>
-            )}
-            <div className="relative z-10 w-20 h-20 md:w-32 md:h-32 rounded-full border-2 bg-black/50 backdrop-blur-sm flex items-center justify-center overflow-hidden shadow-2xl" style={{ borderColor: color }}>
-                <IconComponent className={`w-8 h-8 md:w-12 md:h-12 transition-all duration-200 ${isSpeaking ? 'scale-110' : 'scale-100'}`} style={{ color }} />
-            </div>
-        </div>
-    );
-};
+import AudioReactor from './AudioReactor';
+import { ARCHETYPES } from '../../config/personas';
+import { THEMES } from '../../config/themes';
+import { Play, Pause, Power, Activity, History, Settings, Brain, Zap, Mic, Feather, Cpu, Hourglass, Maximize, Minimize, SkipBack, SkipForward } from '../common/Icons';
 
 // --- MAIN COMPONENT ---
 export default function StudioView({ keys, episodeToLoad, onClearEpisodeToLoad, onOpenSettings }) {
@@ -158,7 +137,7 @@ Do not include any explanation, code fence, or text outside the JSON array.`;
         try {
             const scriptData = await aiService.generateScript(systemPrompt, keys);
             setScript(scriptData);
-            setUsedModel('Llama 3.3 + Gemini 2.5');
+            setUsedModel('Llama 3.3 / 3.1 (Groq)');
             setView('EDITOR');
         } catch (e) {
             console.error(e);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Calendar, Clock, LayoutGrid, List } from '../utils/icons.jsx';
+import { Play, Calendar, Clock, LayoutGrid, List } from '../common/Icons';
 
 export default function Library({ onPlayEpisode }) {
     // Placeholder Data until we have real history migration

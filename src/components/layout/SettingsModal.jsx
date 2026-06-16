@@ -1,5 +1,5 @@
 import React from 'react';
-import { X } from '../utils/icons';
+import { X } from '../common/Icons';
 
 export const SettingsModal = ({ isOpen, keys, onLogout, onClose }) => {
     if (!isOpen) return null;
